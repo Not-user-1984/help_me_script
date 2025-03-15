@@ -21,9 +21,11 @@ def take_screenshot_monitor(auto_mode=False, interval=60, region=None):
     if region is not None:
         logger.info(f"Регион для скриншота: {region}")
         _save_screenshot(region)
-    
+
     if auto_mode:
-        logger.info(f"Автоматический режим включен. Скриншоты будут делаться каждые {interval} секунд. Нажмите Ctrl+C для остановки.")
+        logger.info(
+            f"Автоматический режим включен. Скриншоты будут делаться каждые {interval} секунд. Нажмите Ctrl+C для остановки."
+        )
         try:
             while True:
                 _save_screenshot(region)
@@ -36,15 +38,24 @@ def take_screenshot_monitor(auto_mode=False, interval=60, region=None):
 
 
 def _save_screenshot(region):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    save_dir = os.path.join(script_dir, "scrin")
+
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+        logger.info(f"Создана папка для сохранения скриншотов: {save_dir}")
+
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     filename = f"screenshot_{'second_monitor' if region else 'full'}_{timestamp}.png"
-    save_path = os.path.join(os.path.expanduser("~/scrin_video"), filename)
+    save_path = os.path.join(save_dir, filename)
 
     if region:
         screenshot = pyautogui.screenshot(region=region)
     else:
         screenshot = pyautogui.screenshot()
-    
+
     screenshot.save(save_path)
-    logger.info(f"Скриншот {'второго монитора' if region else 'всего экрана'} сохранен как {save_path}")
+    logger.info(
+        f"Скриншот {'второго монитора' if region else 'всего экрана'} сохранен как {save_path}"
+    )
     return save_path
