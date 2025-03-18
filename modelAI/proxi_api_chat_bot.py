@@ -1,10 +1,11 @@
 import requests
 from langchain_core.messages import AIMessage
-from core.settings import settings
-from core.my_logger import logger
+
 from core.base_chatbot import (
     BaseChatBot,
 )
+from core.my_logger import logger
+from core.settings import settings
 
 
 class ProxyAPIChatBot(BaseChatBot):
@@ -15,9 +16,10 @@ class ProxyAPIChatBot(BaseChatBot):
         config_path="prompt/gigachat.yaml",
         name_prompt="default",
         model="gpt-3.5-turbo",
+        api_url="https://api.proxyapi.ru/openai/v1/chat/completions"
     ):
         super().__init__(config_path, name_prompt)
-        self.api_url = "https://api.proxyapi.ru/openai/v1/chat/completions"
+        self.api_url = api_url
         self.headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {settings.proxi_ai_api}",

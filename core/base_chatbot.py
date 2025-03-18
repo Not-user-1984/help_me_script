@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
-import yaml
+
 import pyperclip
+import yaml
 from langchain_core.messages import HumanMessage, SystemMessage
 from rich.console import Console
 from rich.syntax import Syntax
+
 from core.my_logger import logger
 
 
@@ -52,7 +54,7 @@ class BaseChatBot(ABC):
             self.messages.append(HumanMessage(content=user_input))
             res = self.generate_response(user_input)
             self.messages.append(res)
-            # logger.info(f" Ответ бота: {res.content}")
+            logger.info(f" Ответ бота: {res.content}")
 
             if "```python" in res.content:
                 code = res.content.split("```python")[1].split("```")[0].strip()

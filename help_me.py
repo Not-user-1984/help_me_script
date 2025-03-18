@@ -1,11 +1,13 @@
 import argparse
+import os
+
+from core.my_logger import logger
+from core.settings import settings
 from input_processing.screenshot import take_screenshot_monitor
 from input_processing.util.get_text_in_scrin import extract_text_from_image
 from input_processing.voice_recording import record_and_recognize
 from modelAI.chat_sber import GigaChatBot
 from modelAI.proxi_api_chat_bot import ProxyAPIChatBot
-from core.my_logger import logger
-import os
 
 
 def parse_arguments():
@@ -42,12 +44,17 @@ def main():
         bot = GigaChatBot()
         logger.info("Выбрана модель: GigaChatBot")
     else:
-        bot = ProxyAPIChatBot()
-        logger.info("Выбрана модель: ProxyAPIChatBot")
+        name_prompt = "voice" if args.voice else "default"
+        bot = ProxyAPIChatBot(
+            name_prompt=name_prompt,
+            api_url=settings.url_proxi_api_openai,
+            model=settings.gpt4o,
+        )
+        logger.info(f"Выбрана модель: ProxyAPIChatBot с промтом: {name_prompt}")
 
     if args.voice:
         logger.info("Запуск голосового ввода...")
-        raw_text = record_and_recognize(time_record=30)
+        raw_text = record_and_recognize(time_record=60)
         if raw_text:
             logger.info(f"Распознанный текст: {raw_text}")
         else:
@@ -58,7 +65,6 @@ def main():
         logger.info("Создание скриншота...")
         save_path = take_screenshot_monitor(auto_mode=False, interval=10)
         raw_text = extract_text_from_image(save_path)
-        # logger.info(f"Распознанный текст: {raw_text}")
         os.remove(save_path)
 
     if raw_text:

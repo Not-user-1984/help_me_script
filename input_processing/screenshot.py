@@ -1,6 +1,8 @@
-import pyautogui
-import time
 import os
+import time
+
+import pyautogui
+
 from core.my_logger import logger
 
 

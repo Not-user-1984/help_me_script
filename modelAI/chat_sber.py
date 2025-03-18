@@ -1,8 +1,9 @@
-from langchain_gigachat.chat_models import GigaChat
-from core.settings import settings
 from langchain_core.messages import AIMessage
-from core.my_logger import logger
+from langchain_gigachat.chat_models import GigaChat
+
 from core.base_chatbot import BaseChatBot
+from core.my_logger import logger
+from core.settings import settings
 
 
 class GigaChatBot(BaseChatBot):
