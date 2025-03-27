@@ -6,6 +6,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from rich.console import Console
 from rich.syntax import Syntax
 
+from rich.markdown import Markdown
 from core.my_logger import logger
 
 
@@ -54,18 +55,17 @@ class BaseChatBot(ABC):
             self.messages.append(HumanMessage(content=user_input))
             res = self.generate_response(user_input)
             self.messages.append(res)
-            logger.info(f" Ответ бота: {res.content}")
+            self.console.print(Markdown(res.content))
+            # logger.info(f" Ответ бота: {res.content}")
 
             if "```python" in res.content:
                 code = res.content.split("```python")[1].split("```")[0].strip()
                 syntax = Syntax(code, "python", theme="monokai", line_numbers=True)
                 self.console.print(syntax)
                 pyperclip.copy(code)
-                self.console.print(
-                    "[bold green]Код скопирован в буфер обмена![/bold green]"
-                )
+                self.console.print("[bold green]Код скопирован в буфер обмена![/bold green]")
             else:
-                self.console.print(res.content)
+                self.console.print(Markdown(res.content))
 
             return res.content
         except Exception as e:

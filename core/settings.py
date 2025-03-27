@@ -12,11 +12,14 @@ class Settings:
 
     api_sber_gigachat: str = os.getenv("API_SBER_GIGACHAT")
     proxi_ai_api: str = os.getenv("API_KEY_PROXI_API")
+    yandex_iam_token: str = os.getenv("YANDEX_IAM_TOKEN")
+    yandex_id_folder: str = os.getenv("YANDEX_ID_FOLDER")
 
     # urls
     url_proxi_api_openai = os.getenv("URl_PROXI_API_OPENAI")
     url_proxi_api_claude = os.getenv("URl_PROXI_API_ClAUDE")
     url_proxi_api_deeepseek = os.getenv("URl_PROXI_API_DEEPSEEK")
+    url_YandexGPT = os.getenv("URL_YANDEX_GPT")
 
     # models
     gpt4o = "gpt-4o"
