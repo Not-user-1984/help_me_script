@@ -145,3 +145,12 @@ line-length = 100
 select = ["E", "F", "W", "I"]
 ignore = ["E501"]
 target-version = "py312"
+
+[tool.setuptools]
+packages = [
+    "core",
+    "scrin",
+    "prompt",
+    "modelAI",
+    "input_processing"
+]

@@ -55,7 +55,7 @@ class BaseChatBot(ABC):
             self.messages.append(HumanMessage(content=user_input))
             res = self.generate_response(user_input)
             self.messages.append(res)
-            self.console.print(Markdown(res.content))
+            # self.console.print(Markdown(res.content))
             # logger.info(f" Ответ бота: {res.content}")
 
             if "```python" in res.content:
