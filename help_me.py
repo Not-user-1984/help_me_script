@@ -7,6 +7,7 @@ from core.settings import settings
 from input_processing.screenshot import take_screenshot_monitor
 from input_processing.util.get_text_in_scrin import extract_text_from_image
 from input_processing.voice_recording import record_and_recognize
+from input_processing.file_local.folder_combiner import combine_files_from_folder, DEFAULT_OUTPUT_DIR
 from modelAI.chat_sber import GigaChatBot
 from modelAI.proxi_api_chat_bot import ProxyAPIChatBot
 
@@ -32,11 +33,22 @@ def parse_arguments():
         metavar="MINUTES",
         help="Автоматические скриншоты каждые N минут (например, --auto-screenshot 1 или --auto-screenshot 0.5)",
     )
+    input_group.add_argument(
+        "--f",
+        action="store_true",
+        help="Обработать файлы из папки с использованием дефолтной модели ИИ",
+    )
+
     parser.add_argument(
         "--model",
         choices=["giga", "proxy"],
         default="proxy",
         help="Выбор модели чата: 'giga' для GigaChatBot, 'proxy' для ProxyAPIChatBot (по умолчанию: proxy)",
+    )
+    parser.add_argument(
+        "--folder",
+        type=str,
+        help="Путь к папке для обработки файлов (используется с --f)",
     )
     return parser.parse_args()
 
@@ -69,25 +81,63 @@ def auto_screenshot_worker(bot, interval_minutes):
         time.sleep(interval_minutes * 60)
 
 
+def process_folder_files(bot, folder_path=None):
+    """Функция для обработки файлов из папки"""
+    if not folder_path:
+        folder_path = DEFAULT_OUTPUT_DIR
+
+    if not os.path.exists(folder_path):
+        logger.error(f"Папка не существует: {folder_path}")
+        return
+
+    if not os.path.isdir(folder_path):
+        logger.error(f"Указанный путь не является папкой: {folder_path}")
+        return
+
+    logger.info(f"Начинаю обработку файлов из папки: {folder_path}")
+
+    try:
+        combined_content = combine_files_from_folder(folder_path)
+        logger.info(combined_content)
+
+        if combined_content and combined_content.strip():
+            logger.info("Найден контент для обработки, отправляю в чат-бот...")
+            bot.process_message(combined_content)
+        else:
+            logger.warning("Не удалось извлечь контент из файлов или контент пустой")
+
+    except Exception as e:
+        logger.error(f"Ошибка при обработке файлов из папки: {e}")
+
+
 def main():
     args = parse_arguments()
 
-    if args.model == "giga":
+    # Для команды --f всегда используем дефолтную модель proxy
+    if args.f:
+        model_choice = "proxy"
+        model_choice = args.model
+
+    if model_choice == "giga":
         bot = GigaChatBot()
         logger.info("Выбрана модель: GigaChatBot")
     else:
-        name_prompt = "voice" if args.voice else "default"
+        if args.f:
+            name_prompt = "file_processing"
+            name_prompt = "voice"
+        else:
+            name_prompt = "default"
+
         bot = ProxyAPIChatBot(
             name_prompt=name_prompt,
             api_url=settings.url_proxi_api_openai,
-            model=settings.gpt4o,
+            model=settings.gpt4,
         )
         logger.info(f"Выбрана модель: ProxyAPIChatBot с промтом: {name_prompt}")
 
-    # Обработка команд
     if args.voice:
         logger.info("Запуск голосового ввода...")
-        raw_text = record_and_recognize(time_record=10)
+        raw_text = record_and_recognize(time_record=7)
         if raw_text:
             logger.info(f"Распознанный текст: {raw_text}")
             bot.process_message(raw_text)
@@ -124,6 +174,10 @@ def main():
         except KeyboardInterrupt:
             logger.info("Получен сигнал остановки. Завершение работы...")
             return
+
+    elif args.f:
+        logger.info("Запуск режима обработки файлов...")
+        process_folder_files(bot, args.folder)
 
 
 if __name__ == "__main__":

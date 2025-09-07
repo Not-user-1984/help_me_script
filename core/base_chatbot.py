@@ -62,7 +62,7 @@ class BaseChatBot(ABC):
                 code = res.content.split("```python")[1].split("```")[0].strip()
                 syntax = Syntax(code, "python", theme="monokai", line_numbers=True)
                 self.console.print(syntax)
-                pyperclip.copy(code)
+                # pyperclip.copy(code)
                 self.console.print("[bold green]Код скопирован в буфер обмена![/bold green]")
             else:
                 self.console.print(Markdown(res.content))

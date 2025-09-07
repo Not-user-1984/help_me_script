@@ -23,6 +23,7 @@ class Settings:
 
     # models
     gpt4o = "gpt-4o"
+    gpt4 = "gpt-4.1"
     deepseek = "deepseek-chat"
     gpt3 = "gpt-3.5-turbo"
     claude3_7 = "claude-3-7-sonnet-20250219"
