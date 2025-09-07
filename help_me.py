@@ -84,6 +84,7 @@ def auto_screenshot_worker(bot, interval_minutes):
 def process_folder_files(bot, folder_path=None):
     """Функция для обработки файлов из папки"""
     if not folder_path:
+        # Используем дефолтный путь или текущую директорию
         folder_path = DEFAULT_OUTPUT_DIR
 
     if not os.path.exists(folder_path):
@@ -124,6 +125,7 @@ def main():
     else:
         if args.f:
             name_prompt = "file_processing"
+        elif args.voice:
             name_prompt = "voice"
         else:
             name_prompt = "default"
