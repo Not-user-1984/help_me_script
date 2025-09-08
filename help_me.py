@@ -1,13 +1,17 @@
 import argparse
 import os
-import time
 import threading
+import time
+
 from core.my_logger import logger
 from core.settings import settings
+from input_processing.file_local.folder_combiner import (
+    DEFAULT_OUTPUT_DIR,
+    combine_files_from_folder,
+)
 from input_processing.screenshot import take_screenshot_monitor
 from input_processing.util.get_text_in_scrin import extract_text_from_image
 from input_processing.voice_recording import record_and_recognize
-from input_processing.file_local.folder_combiner import combine_files_from_folder, DEFAULT_OUTPUT_DIR
 from modelAI.chat_sber import GigaChatBot
 from modelAI.proxi_api_chat_bot import ProxyAPIChatBot
 
@@ -49,6 +53,11 @@ def parse_arguments():
         "--folder",
         type=str,
         help="Путь к папке для обработки файлов (используется с --f)",
+    )
+    parser.add_argument(
+        "--t",
+        action="store_true",
+        help="Использовать промпт 'file_processing_test_error' для обработки тестовых ошибок (используется с --f)",
     )
     return parser.parse_args()
 
@@ -117,6 +126,7 @@ def main():
     # Для команды --f всегда используем дефолтную модель proxy
     if args.f:
         model_choice = "proxy"
+    else:
         model_choice = args.model
 
     if model_choice == "giga":
@@ -124,7 +134,12 @@ def main():
         logger.info("Выбрана модель: GigaChatBot")
     else:
         if args.f:
-            name_prompt = "file_processing"
+            # Проверяем флаг --t для выбора специального промпта
+            if args.t:
+                name_prompt = "file_processing_test_error"
+                logger.info("Используется промпт для обработки тестовых ошибок")
+            else:
+                name_prompt = "file_processing"
         elif args.voice:
             name_prompt = "voice"
         else:
